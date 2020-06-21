@@ -185,7 +185,7 @@ void EncodeMotionControlMsgToUART(const MotionControlMessage *msg, uint8_t *buf,
     buf[6] = msg->data.cmd.fault_clear_flag;
     buf[7] = msg->data.cmd.linear_velocity_cmd;
     buf[8] = msg->data.cmd.angular_velocity_cmd;
-    buf[9] = 0x00;
+    buf[9] = msg->data.cmd.sideway_velocity_cmd;
     buf[10] = 0x00;
 
     // frame count, checksum
