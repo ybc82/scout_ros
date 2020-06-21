@@ -510,8 +510,8 @@ bool ConstructControlMessage(ScoutControlMessage *msg)
         msg->motion_control_msg.data.cmd.fault_clear_flag = payload_buffer[1];
         msg->motion_control_msg.data.cmd.linear_velocity_cmd = payload_buffer[2];
         msg->motion_control_msg.data.cmd.angular_velocity_cmd = payload_buffer[3];
-        msg->motion_control_msg.data.cmd.reserved0 = payload_buffer[4];
-        msg->motion_control_msg.data.cmd.reserved1 = payload_buffer[5];
+        msg->motion_control_msg.data.cmd.sideway_velocity_cmd = payload_buffer[4];
+        msg->motion_control_msg.data.cmd.reserved0 = payload_buffer[5];
         msg->motion_control_msg.data.cmd.count = frame_cnt;
         msg->motion_control_msg.data.cmd.checksum = frame_checksum;
         break;

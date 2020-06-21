@@ -134,6 +134,7 @@ void ScoutBase::ConfigureSerial(const std::string uart_name, int32_t baud_rate)
 void ScoutBase::StartCmdThread()
 {
     current_motion_cmd_.linear_velocity = 0;
+    current_motion_cmd_.sideway_velocity = 0;
     current_motion_cmd_.angular_velocity = 0;
     current_motion_cmd_.fault_clear_flag = ScoutMotionCmd::FaultClearFlag::NO_FAULT;
 
@@ -154,11 +155,12 @@ void ScoutBase::SendMotionCmd(uint8_t count)
     motion_cmd_mutex_.lock();
     m_msg.data.cmd.fault_clear_flag = static_cast<uint8_t>(current_motion_cmd_.fault_clear_flag);
     m_msg.data.cmd.linear_velocity_cmd = current_motion_cmd_.linear_velocity;
+    m_msg.data.cmd.sideway_velocity_cmd = current_motion_cmd_.sideway_velocity;
     m_msg.data.cmd.angular_velocity_cmd = current_motion_cmd_.angular_velocity;
     motion_cmd_mutex_.unlock();
 
     m_msg.data.cmd.reserved0 = 0;
-    m_msg.data.cmd.reserved1 = 0;
+    // m_msg.data.cmd.reserved1 = 0;
     m_msg.data.cmd.count = count;
 
     if (can_connected_)
@@ -283,6 +285,32 @@ void ScoutBase::SetMotionCommand(double linear_vel, double angular_vel, ScoutMot
 
     std::lock_guard<std::mutex> guard(motion_cmd_mutex_);
     current_motion_cmd_.linear_velocity = static_cast<int8_t>(linear_vel / ScoutMotionCmd::max_linear_velocity * 100.0);
+    current_motion_cmd_.angular_velocity = static_cast<int8_t>(angular_vel / ScoutMotionCmd::max_angular_velocity * 100.0);
+    current_motion_cmd_.fault_clear_flag = fault_clr_flag;
+}
+
+void ScoutBase::SetMotionCommand(double linear_vel, double sideway_vel, double angular_vel, ScoutMotionCmd::FaultClearFlag fault_clr_flag)
+{
+    // make sure cmd thread is started before attempting to send commands
+    if (!cmd_thread_started_)
+        StartCmdThread();
+
+    if (linear_vel < ScoutMotionCmd::min_linear_velocity)
+        linear_vel = ScoutMotionCmd::min_linear_velocity;
+    if (linear_vel > ScoutMotionCmd::max_linear_velocity)
+        linear_vel = ScoutMotionCmd::max_linear_velocity;
+    if (sideway_vel < ScoutMotionCmd::min_sideway_velocity)
+        sideway_vel = ScoutMotionCmd::min_sideway_velocity;
+    if (sideway_vel > ScoutMotionCmd::max_sideway_velocity)
+        sideway_vel = ScoutMotionCmd::max_sideway_velocity;
+    if (angular_vel < ScoutMotionCmd::min_angular_velocity)
+        angular_vel = ScoutMotionCmd::min_angular_velocity;
+    if (angular_vel > ScoutMotionCmd::max_angular_velocity)
+        angular_vel = ScoutMotionCmd::max_angular_velocity;
+
+    std::lock_guard<std::mutex> guard(motion_cmd_mutex_);
+    current_motion_cmd_.linear_velocity = static_cast<int8_t>(linear_vel / ScoutMotionCmd::max_linear_velocity * 100.0);
+    current_motion_cmd_.sideway_velocity = static_cast<int8_t>(sideway_vel / ScoutMotionCmd::max_sideway_velocity * 100.0);
     current_motion_cmd_.angular_velocity = static_cast<int8_t>(angular_vel / ScoutMotionCmd::max_angular_velocity * 100.0);
     current_motion_cmd_.fault_clear_flag = fault_clr_flag;
 }

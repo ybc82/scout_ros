@@ -74,15 +74,18 @@ struct ScoutMotionCmd
 
     ScoutMotionCmd(int8_t linear = 0, int8_t angular = 0,
                    FaultClearFlag fault_clr_flag = FaultClearFlag::NO_FAULT)
-        : linear_velocity(linear), angular_velocity(angular),
+        : linear_velocity(linear), sideway_velocity(0.0), angular_velocity(angular),
           fault_clear_flag(fault_clr_flag) {}
 
     int8_t linear_velocity;
+    int8_t sideway_velocity;
     int8_t angular_velocity;
     FaultClearFlag fault_clear_flag;
 
     static constexpr double max_linear_velocity = 1.5;      // 1.5 m/s
     static constexpr double min_linear_velocity = -1.5;     // -1.5 m/s
+    static constexpr double max_sideway_velocity = 1.5;     // 1.5 m/s
+    static constexpr double min_sideway_velocity = -1.5;    // -1.5 m/s
     static constexpr double max_angular_velocity = 0.5235;  // 0.5235 rad/s
     static constexpr double min_angular_velocity = -0.5235; // -0.5235 rad/s
 };
